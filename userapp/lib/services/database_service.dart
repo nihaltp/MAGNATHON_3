@@ -72,4 +72,31 @@ class DatabaseService {
           .toList();
     });
   }
+
+  // Update user data
+  Future<void> updateUserData(UserModel user) async {
+    try {
+      await _firestore.collection('users').doc(user.uid).update(user.toMap());
+    } catch (e) {
+      throw e.toString();
+    }
+  }
+
+  // Update user stats
+  Future<void> updateUserStats({
+    required String uid,
+    required int score,
+    required int highScore,
+    required int remainingPoints,
+  }) async {
+    try {
+      await _firestore.collection('users').doc(uid).update({
+        'score': score,
+        'highScore': highScore,
+        'remainingPoints': remainingPoints,
+      });
+    } catch (e) {
+      throw e.toString();
+    }
+  }
 }

@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
 import 'package:pretty_qr_code/pretty_qr_code.dart';
+import 'package:provider/provider.dart';
 import 'package:userapp/config/app_colors.dart';
 import 'package:userapp/services/auth_service.dart';
-import 'package:userapp/services/database_service.dart';
 import 'package:userapp/models/user_model.dart';
+import 'package:userapp/providers/user_provider.dart';
 import 'package:userapp/screens/auth/login_page.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -16,26 +17,17 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   final AuthService _authService = AuthService();
-  final DatabaseService _databaseService = DatabaseService();
-  late String userId;
-
-  @override
-  void initState() {
-    super.initState();
-    userId = _authService.getCurrentUserId() ?? '';
-  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: StreamBuilder<UserModel?>(
-        stream: _databaseService.getUserDataStream(userId),
-        builder: (context, snapshot) {
-          if (!snapshot.hasData) {
+      body: Consumer<UserProvider>(
+        builder: (context, userProvider, child) {
+          if (userProvider.isLoading) {
             return const Center(child: CircularProgressIndicator());
           }
 
-          UserModel? user = snapshot.data;
+          UserModel? user = userProvider.user;
           if (user == null) {
             return const Center(child: Text('User not found'));
           }

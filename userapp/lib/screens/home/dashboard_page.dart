@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
+import 'package:provider/provider.dart';
 import 'package:userapp/config/app_colors.dart';
 import 'package:userapp/services/auth_service.dart';
-import 'package:userapp/services/database_service.dart';
 import 'package:userapp/models/user_model.dart';
+import 'package:userapp/providers/user_provider.dart';
+import 'package:userapp/providers/leaderboard_provider.dart';
 
 class DashboardPage extends StatefulWidget {
   final String restaurantName;
@@ -16,39 +18,17 @@ class DashboardPage extends StatefulWidget {
 
 class _DashboardPageState extends State<DashboardPage> {
   final AuthService _authService = AuthService();
-  final DatabaseService _databaseService = DatabaseService();
-  late String userId;
-  int userRank = 0;
-
-  @override
-  void initState() {
-    super.initState();
-    userId = _authService.getCurrentUserId() ?? '';
-    _getUserRank();
-  }
-
-  void _getUserRank() async {
-    try {
-      int rank = await _databaseService.getUserRank(userId);
-      setState(() {
-        userRank = rank;
-      });
-    } catch (e) {
-      print('Error getting rank: $e');
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: StreamBuilder<UserModel?>(
-        stream: _databaseService.getUserDataStream(userId),
-        builder: (context, snapshot) {
-          if (!snapshot.hasData) {
+      body: Consumer2<UserProvider, LeaderboardProvider>(
+        builder: (context, userProvider, leaderboardProvider, child) {
+          if (userProvider.isLoading) {
             return const Center(child: CircularProgressIndicator());
           }
 
-          UserModel? user = snapshot.data;
+          UserModel? user = userProvider.user;
           if (user == null) {
             return const Center(child: Text('User not found'));
           }
@@ -106,7 +86,7 @@ class _DashboardPageState extends State<DashboardPage> {
                     // Leaderboard Rank
                     _buildStatCard(
                       title: 'Leaderboard Rank',
-                      value: '#$userRank',
+                      value: '#${leaderboardProvider.getUserRank(user.uid)}',
                       icon: Icons.leaderboard,
                       color1: const Color(0xFFFFD740),
                       color2: const Color(0xFFFBC02D),
@@ -149,7 +129,7 @@ class _DashboardPageState extends State<DashboardPage> {
                       ),
                     ),
                     SizedBox(height: 2.h),
-                    _buildLeaderboard(),
+                    _buildLeaderboard(leaderboardProvider),
                   ],
                 ),
               ),
@@ -220,84 +200,79 @@ class _DashboardPageState extends State<DashboardPage> {
     );
   }
 
-  Widget _buildLeaderboard() {
-    return StreamBuilder<List<UserModel>>(
-      stream: _databaseService.getLeaderboardStream(limit: 5),
-      builder: (context, snapshot) {
-        if (!snapshot.hasData) {
-          return const Center(child: CircularProgressIndicator());
-        }
+  Widget _buildLeaderboard(LeaderboardProvider leaderboardProvider) {
+    if (leaderboardProvider.isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
 
-        List<UserModel> leaderboard = snapshot.data ?? [];
+    List<UserModel> leaderboard = leaderboardProvider.leaderboard;
 
-        return ListView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          itemCount: leaderboard.length,
-          itemBuilder: (context, index) {
-            UserModel user = leaderboard[index];
-            return Padding(
-              padding: EdgeInsets.only(bottom: 1.5.h),
-              child: Container(
-                padding: EdgeInsets.all(3.w),
-                decoration: BoxDecoration(
-                  color: AppColors.white.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(2.5.w),
-                  border: Border.all(color: AppColors.accentColor, width: 1),
-                ),
-                child: Row(
-                  children: [
-                    Container(
-                      width: 8.w,
-                      height: 8.w,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: AppColors.accentColor,
+    return ListView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: leaderboard.length,
+      itemBuilder: (context, index) {
+        UserModel user = leaderboard[index];
+        return Padding(
+          padding: EdgeInsets.only(bottom: 1.5.h),
+          child: Container(
+            padding: EdgeInsets.all(3.w),
+            decoration: BoxDecoration(
+              color: AppColors.white.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(2.5.w),
+              border: Border.all(color: AppColors.accentColor, width: 1),
+            ),
+            child: Row(
+              children: [
+                Container(
+                  width: 8.w,
+                  height: 8.w,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: AppColors.accentColor,
+                  ),
+                  child: Center(
+                    child: Text(
+                      '${index + 1}',
+                      style: TextStyle(
+                        fontSize: 4.w,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.primaryDark,
                       ),
-                      child: Center(
-                        child: Text(
-                          '${index + 1}',
-                          style: TextStyle(
-                            fontSize: 4.w,
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.primaryDark,
-                          ),
+                    ),
+                  ),
+                ),
+                SizedBox(width: 3.w),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        user.name,
+                        style: TextStyle(
+                          fontSize: 4.w,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.white,
                         ),
                       ),
-                    ),
-                    SizedBox(width: 3.w),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            user.name,
-                            style: TextStyle(
-                              fontSize: 4.w,
-                              fontWeight: FontWeight.bold,
-                              color: AppColors.white,
-                            ),
-                          ),
-                          Text(
-                            'Score: ${user.highScore}',
-                            style: TextStyle(
-                              fontSize: 3.w,
-                              color: AppColors.accentColor,
-                            ),
-                          ),
-                        ],
+                      Text(
+                        'Score: ${user.highScore}',
+                        style: TextStyle(
+                          fontSize: 3.w,
+                          color: AppColors.accentColor,
+                        ),
                       ),
-                    ),
-                    Icon(
-                      Icons.star,
-                      color: AppColors.accentColor,
-                      size: 5.w,
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-            );
-          },
+                Icon(
+                  Icons.star,
+                  color: AppColors.accentColor,
+                  size: 5.w,
+                ),
+              ],
+            ),
+          ),
         );
       },
     );
