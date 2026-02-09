@@ -67,7 +67,9 @@ while True:
                     "score": score_value,
                     "timestamp": time.time()
                 })
-                score_value = 0
+                db.collection("coaster").document("tZ00L2SuCpkHV4knZs6x").update({
+                    "score": score_value
+                })
 
     except Exception as e:
         print("Error:", e)
