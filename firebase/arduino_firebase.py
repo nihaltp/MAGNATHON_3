@@ -60,6 +60,9 @@ while True:
 
             elif data == "no phone detected! score paused.":
                 print("No phone detected. Score paused.")
+                doc_ref = db.collection("coaster").document("tZ00L2SuCpkHV4knZs6x")
+                score = doc_ref.get().to_dict().get("score")
+                score_value = score + score_value if score is not None else score_value
                 db.collection("coaster").document("tZ00L2SuCpkHV4knZs6x").set({
                     "score": score_value,
                     "timestamp": time.time()
