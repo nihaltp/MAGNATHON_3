@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "184499530622",
+    "project_id": "magnathon-5215f",
+    "storage_bucket": "magnathon-5215f.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:184499530622:android:bd24904f2b06e896d2e12f",
+        "android_client_info": {
+          "package_name": "com.example.magnathon"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDapgDxljazZqLVAQ6PcnRUeA6Kc6QeWq0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
