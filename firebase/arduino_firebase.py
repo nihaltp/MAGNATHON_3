@@ -46,25 +46,25 @@ while True:
 
         if ser.in_waiting:
             data = ser.readline().decode("utf-8").strip()
-            print("Received:", data)
+            data = data.lower()  # Convert to lowercase for case-insensitive comparison
+            print("Arduino:", data)
 
             # Check if this is a Firebase score update
             if data.startswith("score: "):
                 try:
-                    score_value = int(data.split(": ")[1])
+                    value = int(data.split(": ")[1])
+                    if value > score_value:
+                        score_value = value
                 except (ValueError, IndexError) as e:
                     print(f"Error parsing score: {e}")
 
-            elif data == "No Phone Detected! Score paused.":
+            elif data == "no phone detected! score paused.":
                 print("No phone detected. Score paused.")
                 db.collection("coaster").document("tZ00L2SuCpkHV4knZs6x").set({
                     "score": score_value,
                     "timestamp": time.time()
                 })
                 score_value = 0
-
-            else:
-                print("Arduino: ", data)
 
     except Exception as e:
         print("Error:", e)
