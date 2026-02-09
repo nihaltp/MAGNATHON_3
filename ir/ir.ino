@@ -38,38 +38,10 @@ void setup() {
 }
 
 void loop() {
-  if (pause || failed) {
-    return;
-  }
-
-  if (!firstTime && !checkIR()) {
-    Serial.println("score: " + String(score));
-    score = 0;
-    timeNow = millis();
-    failed = true;
-    return;
-  }
-
-  if (timeNow == 0) {
-    timeNow = millis();
-  }
-
-  if (millis() - timeNow > scoreInterval) {
-    firstTime = false;
-    if (checkIR()) {
-      score += 1;
-      Serial.println("score: " + String(score));
-    }
-    timeNow = millis();
-  }
-
   if (Serial.available() > 0) {
     String message = Serial.readString();
-    if (message == "reset") {
-      score = 0;
-      failed = false;
-    }
-    if (message == "start") {
+    message.trim();
+    if (message == "reset" || message == "start") {
       failed = false;
       score = 0;
       timeNow = millis();
@@ -87,6 +59,38 @@ void loop() {
     if (message == "score") {
       Serial.println("score: " + String(score));
     }
+  }
+
+  if (pause || failed) {
+    return;
+  }
+
+  if (firstTime) {
+    if (checkIR()) {
+      firstTime = false;
+    } else {
+      return;
+    }
+  }
+
+  if (!checkIR()) {
+    Serial.println("score: " + String(score));
+    score = 0;
+    timeNow = millis();
+    failed = true;
+    return;
+  }
+
+  if (timeNow == 0) {
+    timeNow = millis();
+  }
+
+  if (millis() - timeNow > scoreInterval) {
+    if (checkIR()) {
+      score += 1;
+      Serial.println("score: " + String(score));
+    }
+    timeNow = millis();
   }
 }
 
