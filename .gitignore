@@ -1,3 +1,8 @@
 build
 .vscode
 .env
+firebase_key.json
+ir.cpp
+ir
+arduino
+arduino/arduino.ino

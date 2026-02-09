@@ -3,6 +3,7 @@ import 'package:sizer/sizer.dart';
 import 'package:userapp/config/app_colors.dart';
 import 'package:userapp/screens/home/dashboard_page.dart';
 import 'package:userapp/screens/profile/profile_page.dart';
+import 'package:crystal_navigation_bar/crystal_navigation_bar.dart';
 import 'package:userapp/services/auth_service.dart';
 
 class HomePage extends StatefulWidget {
@@ -52,43 +53,39 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBody: true,
       body: _getPage(_selectedIndex),
-      bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          boxShadow: [
-            BoxShadow(
-              color: AppColors.primaryDark.withOpacity(0.3),
-              spreadRadius: 5,
-              blurRadius: 10,
-            ),
-          ],
-        ),
-        child: BottomNavigationBar(
-          currentIndex: _selectedIndex,
-          onTap: (index) {
-            setState(() {
-              _selectedIndex = index;
-            });
-          },
-          type: BottomNavigationBarType.fixed,
-          backgroundColor: AppColors.white,
-          selectedItemColor: AppColors.primaryDark,
-          unselectedItemColor: AppColors.greyMedium,
-          items: [
-            BottomNavigationBarItem(
-              icon: Icon(Icons.home, size: 6.w),
-              label: 'Home',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.dashboard, size: 6.w),
-              label: 'Dashboard',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.person, size: 6.w),
-              label: 'Profile',
-            ),
-          ],
-        ),
+      bottomNavigationBar: CrystalNavigationBar(
+        currentIndex: _selectedIndex,
+        height: 7.h,
+        unselectedItemColor: Colors.white.withOpacity(0.6),
+        borderWidth: 1,
+        outlineBorderColor: Colors.white.withOpacity(0.2),
+        backgroundColor: Colors.white.withOpacity(0.35),
+        paddingR: const EdgeInsets.all(0),
+        borderRadius: 30,
+        onTap: (index) {
+          setState(() {
+            _selectedIndex = index;
+          });
+        },
+        items: [
+          CrystalNavigationBarItem(
+            icon: Icons.home,
+            unselectedIcon: Icons.home_outlined,
+            selectedColor: AppColors.white,
+          ),
+          CrystalNavigationBarItem(
+            icon: Icons.dashboard_rounded,
+            unselectedIcon: Icons.dashboard_outlined,
+            selectedColor: AppColors.white,
+          ),
+          CrystalNavigationBarItem(
+            icon: Icons.person_rounded,
+            unselectedIcon: Icons.person_outline_rounded,
+            selectedColor: AppColors.white,
+          ),
+        ],
       ),
     );
   }

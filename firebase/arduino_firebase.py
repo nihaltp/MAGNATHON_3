@@ -2,8 +2,9 @@ import os
 import serial
 import time
 import firebase_admin
-from firebase_admin import credentials, db
+from firebase_admin import credentials, firestore
 from dotenv import load_dotenv
+import msvcrt
 
 #Load environment variables
 load_dotenv()
@@ -15,11 +16,9 @@ BAUD_RATE = 9600
 
 # ---------- FIREBASE CONFIG ----------
 cred = credentials.Certificate("firebase_key.json")
-firebase_admin.initialize_app(cred, {
-    "databaseURL": firebase_url
-})
+firebase_admin.initialize_app(cred)
 
-ref = db.reference("arduino_data")
+db = firestore.client()
 
 # ---------- SERIAL CONNECTION ----------
 ser = serial.Serial(SERIAL_PORT, BAUD_RATE, timeout=1)
@@ -27,17 +26,48 @@ time.sleep(2)  # wait for Arduino reset
 
 print("Listening to Arduino...")
 
+input_buffer = ""
+score_value = 0
+
 while True:
     try:
+        if msvcrt.kbhit():
+            char = msvcrt.getwch()
+
+            if char == '\r':  # Enter key
+                if input_buffer:
+                    ser.write((input_buffer + "\n").encode("utf-8"))
+                    print(f"Sent to Arduino: {input_buffer}")
+                    input_buffer = ""
+            elif char == '\b':  # Backspace
+                input_buffer = input_buffer[:-1]
+            else:
+                input_buffer += char
+
         if ser.in_waiting:
             data = ser.readline().decode("utf-8").strip()
-            print("Received:", data)
+            data = data.lower()  # Convert to lowercase for case-insensitive comparison
+            print("Arduino:", data)
 
-            # Upload to Firebase
-            ref.push({
-                "value": data,
-                "timestamp": time.time()
-            })
+            # Check if this is a Firebase score update
+            if data.startswith("score: "):
+                try:
+                    value = int(data.split(": ")[1])
+                    if value > score_value:
+                        score_value = value
+                except (ValueError, IndexError) as e:
+                    print(f"Error parsing score: {e}")
+
+            elif data == "no phone detected! score paused.":
+                print("No phone detected. Score paused.")
+                doc_ref = db.collection("coaster").document("tZ00L2SuCpkHV4knZs6x")
+                score = doc_ref.get().to_dict().get("score")
+                score_value = score + score_value if score is not None else score_value
+                db.collection("coaster").document("tZ00L2SuCpkHV4knZs6x").set({
+                    "score": score_value,
+                    "timestamp": time.time()
+                })
+                score_value = 0
 
     except Exception as e:
         print("Error:", e)

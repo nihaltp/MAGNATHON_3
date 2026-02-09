@@ -15,14 +15,16 @@ class LeaderboardProvider extends ChangeNotifier {
   List<UserModel> get leaderboard => _leaderboard;
   bool get isLoading => _isLoading;
   String? get error => _error;
-
+  
   /// Load leaderboard data (only if cache expired or forced refresh)
   Future<void> loadLeaderboard({bool forceRefresh = false}) async {
     // Return if cache is still valid and not forcing refresh
+    print('Is this working??');
     if (!forceRefresh &&
         _lastFetchTime != null &&
         DateTime.now().difference(_lastFetchTime!) < _cacheDuration &&
         _leaderboard.isNotEmpty) {
+      print('LeaderboardProvider: Using cached leaderboard data');
       return;
     }
 
@@ -35,8 +37,10 @@ class LeaderboardProvider extends ChangeNotifier {
       _leaderboard = leaderboardData;
       _lastFetchTime = DateTime.now();
       _error = null;
+      print('LeaderboardProvider: Successfully loaded leaderboard with ${leaderboardData.length} entries');
     } catch (e) {
       _error = e.toString();
+      print('LeaderboardProvider: Error loading leaderboard: $e');
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -45,6 +49,7 @@ class LeaderboardProvider extends ChangeNotifier {
 
   /// Refresh leaderboard data
   Future<void> refreshLeaderboard() async {
+    print('LeaderboardProvider: Refreshing leaderboard');
     await loadLeaderboard(forceRefresh: true);
   }
 

@@ -30,7 +30,26 @@ class _DashboardPageState extends State<DashboardPage> {
 
           UserModel? user = userProvider.user;
           if (user == null) {
-            return const Center(child: Text('User not found'));
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    'User data not found',
+                    style: TextStyle(fontSize: 4.w, color: AppColors.white),
+                  ),
+                  SizedBox(height: 2.h),
+                  ElevatedButton.icon(
+                    onPressed: () {
+                      userProvider.refreshUser();
+                      leaderboardProvider.refreshLeaderboard();
+                    },
+                    icon: const Icon(Icons.refresh),
+                    label: const Text('Retry'),
+                  ),
+                ],
+              ),
+            );
           }
 
           return Container(
