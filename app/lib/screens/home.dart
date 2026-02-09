@@ -13,66 +13,82 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  final PageController _pageController = PageController();
+  int _selectedIndex = 0;
 
-  final _pageController = PageController();
-  int selectedIndex = 0;
-  
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  void _onTap(int index) {
+    setState(() => _selectedIndex = index);
+    _pageController.animateToPage(
+      index,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFFF8F9FE),
       appBar: AppBar(
+        backgroundColor: Colors.white,
         title: Text(
-          "Magnathon"
+          "Magnathon",
+          style: TextStyle(
+            fontSize: 25.sp,
+            fontWeight: FontWeight.w900,
+            letterSpacing: 2,
+            color: const Color(0xFF1A237E),
+          ),
         ),
       ),
+
       bottomNavigationBar: CrystalNavigationBar(
-        currentIndex: selectedIndex,
-        height: 0.5.dp,
-        // indicatorColor: Colors.blue,
-        unselectedItemColor: Colors.white70,
-        borderWidth: 2,
-        outlineBorderColor: Colors.white,
-        backgroundColor: Colors.black.withValues(alpha: 0.5),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.2),
-            blurRadius: 1,
-            spreadRadius: 1,
-            offset: Offset(0, 5),
-          ),
-        ],
-        onTap: (index) {
-          _pageController.jumpToPage(index);
-            setState(() {
-            selectedIndex = index;
-          });
-        },
+        currentIndex: _selectedIndex,
+        height: 7.h,
+        unselectedItemColor: Colors.white.withOpacity(0.5),
+        borderWidth: 1,
+        outlineBorderColor: Colors.white.withOpacity(0.2),
+        backgroundColor: Colors.black.withOpacity(0.4),
+        paddingR: const EdgeInsets.all(0),
+        borderRadius: 30,
+        onTap: _onTap,
         items: [
           CrystalNavigationBarItem(
-            icon: Icons.home,
-            unselectedIcon: Icons.home_outlined,
+            icon: Icons.grid_view_rounded,
+            unselectedIcon: Icons.grid_view_outlined,
             selectedColor: Colors.white,
           ),
-
           CrystalNavigationBarItem(
-            icon: Icons.leaderboard_rounded,
-            unselectedIcon: Icons.leaderboard_outlined,
+            icon: Icons.emoji_events_rounded,
+            unselectedIcon: Icons.emoji_events_outlined,
             selectedColor: Colors.white,
           ),
-
           CrystalNavigationBarItem(
-            icon: Icons.account_circle_rounded,
-            unselectedIcon: Icons.account_circle_outlined,
+            icon: Icons.person_rounded,
+            unselectedIcon: Icons.person_outline_rounded,
             selectedColor: Colors.white,
           ),
         ],
       ),
+
       body: PageView(
-          physics: NeverScrollableScrollPhysics(),
-          controller: _pageController,
-          children: [LandingScreen(), LeaderBoardScreen(), ProfileScreen()],
-        
-        )
+        physics: const NeverScrollableScrollPhysics(),
+        controller: _pageController,
+        onPageChanged: (index) {
+          setState(() => _selectedIndex = index);
+        },
+        children: const [
+          LandingScreen(), 
+          LeaderBoardScreen(), 
+          ProfileScreen(),
+        ],
+      ),
     );
   }
 }
