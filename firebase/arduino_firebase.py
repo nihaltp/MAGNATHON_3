@@ -4,6 +4,7 @@ import time
 import firebase_admin
 from firebase_admin import credentials, firestore
 from dotenv import load_dotenv
+import msvcrt
 
 #Load environment variables
 load_dotenv()
@@ -25,8 +26,23 @@ time.sleep(2)  # wait for Arduino reset
 
 print("Listening to Arduino...")
 
+input_buffer = ""
+
 while True:
     try:
+        if msvcrt.kbhit():
+            char = msvcrt.getwch()
+
+            if char == '\r':  # Enter key
+                if input_buffer:
+                    ser.write((input_buffer + "\n").encode("utf-8"))
+                    print(f"Sent to Arduino: {input_buffer}")
+                    input_buffer = ""
+            elif char == '\b':  # Backspace
+                input_buffer = input_buffer[:-1]
+            else:
+                input_buffer += char
+
         if ser.in_waiting:
             data = ser.readline().decode("utf-8").strip()
             print("Received:", data)
