@@ -1,0 +1,68 @@
+{
+  "project_info": {
+    "project_number": "184499530622",
+    "project_id": "magnathon-5215f",
+    "storage_bucket": "magnathon-5215f.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:184499530622:android:bd24904f2b06e896d2e12f",
+        "android_client_info": {
+          "package_name": "com.example.magnathon"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "184499530622-varppde3k8m48an71eg0b45mkg1s2gd9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDapgDxljazZqLVAQ6PcnRUeA6Kc6QeWq0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "184499530622-varppde3k8m48an71eg0b45mkg1s2gd9.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:184499530622:android:2a6e709d07626892d2e12f",
+        "android_client_info": {
+          "package_name": "com.example.userapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "184499530622-varppde3k8m48an71eg0b45mkg1s2gd9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDapgDxljazZqLVAQ6PcnRUeA6Kc6QeWq0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "184499530622-varppde3k8m48an71eg0b45mkg1s2gd9.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
