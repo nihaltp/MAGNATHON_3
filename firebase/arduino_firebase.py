@@ -33,11 +33,13 @@ while True:
             data = ser.readline().decode("utf-8").strip()
             print("Received:", data)
 
-            # Upload to Firebase
-            ref.push({
-                "value": data,
-                "timestamp": time.time()
-            })
+            if (data and data.startswith("score: ")):
+                data = data.split(": ")[1]  # Extract score value
+                print("Score:", data)
+                ref.push({
+                    "score": data,
+                    "timestamp": time.time()
+                })
 
     except Exception as e:
         print("Error:", e)
