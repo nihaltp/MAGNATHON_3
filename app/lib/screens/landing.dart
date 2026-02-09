@@ -35,6 +35,7 @@ class _LandingScreenState extends State<LandingScreen> {
                       "Magnathon Cafe",
                       style: TextStyle(
                         fontSize: 25.sp,
+                        color: const Color(0xFF1A237E),
                         fontWeight: FontWeight.bold
                       ),
                       ),
@@ -51,17 +52,35 @@ class _LandingScreenState extends State<LandingScreen> {
                   width: 89.w,
                   height: 12.h,
                   decoration: BoxDecoration(
-                    color: Colors.green,
-                    borderRadius: BorderRadius.circular(15)
+                    gradient: LinearGradient(
+                      colors: [const Color(0xFF1A237E), const Color(0xFF3F51B5)],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    borderRadius: BorderRadius.circular(20),
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFF1A237E).withOpacity(0.3),
+                        blurRadius: 15,
+                        offset: const Offset(0, 8),
+                      ),
+                    ],
                   ),
                   child: Row(
                     spacing: 4.5.w,
                     children: [
-                      Icon(
-                        Icons.qr_code_scanner_outlined,
-                        size: 28.sp,
-                        color: Colors.white,
+                      Container(
+                        padding: EdgeInsets.all(15.sp),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.15),
+                          shape: BoxShape.circle,
                         ),
+                        child: Icon(
+                          Icons.qr_code_scanner_rounded,
+                          size: 26.sp,
+                          color: Colors.white,
+                        ),
+                      ),
                       Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
@@ -93,38 +112,53 @@ class _LandingScreenState extends State<LandingScreen> {
               SizedBox(height: 2.h,),
               CarouselSlider.builder(
                 options: CarouselOptions(
-                  enlargeCenterPage: true
+                  height: 25.h,
+                  enlargeCenterPage: true,
+                  enableInfiniteScroll: false,
+                  viewportFraction: 0.75,
                 ),
-                itemCount: 4,
-                itemBuilder: (BuildContext context, int itemIndex, int pageViewIndex) =>
-                  Container(
-                    height: 12.h,
-                    width: 89.w,
-                    decoration: BoxDecoration(
-                      color: Colors.green,
-                      borderRadius: BorderRadius.circular(15)
-                    ),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.casino_outlined, 
-                          color: Colors.white,
-                          size: 35.sp,
-                        ),
-                        Text(
-                          "Coaster ${itemIndex + 1}",
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 20.sp,
-                            fontWeight: FontWeight.bold
-                          ),
-                        )
-                      ],
-                    ),
+                itemCount: 5,
+                itemBuilder: (context, index, realIndex) => Container(
+                  width: double.infinity,
+                  margin: EdgeInsets.symmetric(vertical: 1.h),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(24),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.04),
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                    border: Border.all(color: Colors.black.withOpacity(0.05)),
                   ),
-          )
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.sensors_rounded, // Changed to a hardware-relevant icon
+                        color: const Color(0xFF3F51B5),
+                        size: 32.sp,
+                      ),
+                      SizedBox(height: 1.h),
+                      Text(
+                        "Coaster ${index + 1}",
+                        style: TextStyle(
+                          color: const Color(0xFF1A237E),
+                          fontSize: 17.sp,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                      SizedBox(height: 1.h),
+                      Text(
+                        "Active • Table 0${index + 1}",
+                        style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold),
+                      )
+                    ],
+                  ),
+                ),
+              )
             ],
           ),
         ),
