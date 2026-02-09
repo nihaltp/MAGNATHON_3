@@ -24,6 +24,12 @@ db = firestore.client()
 ser = serial.Serial(SERIAL_PORT, BAUD_RATE, timeout=1)
 time.sleep(2)  # wait for Arduino reset
 
+coaster_id = "tZ00L2SuCpkHV4knZs6x"
+users_id = "VVeJV9wESIhv0MZri919rLqC54w2"
+
+coaster_ref = db.collection("coaster").document(coaster_id)
+users_ref = db.collection("users").document(users_id)
+
 print("Listening to Arduino...")
 
 input_buffer = ""
@@ -60,10 +66,14 @@ while True:
 
             elif data == "no phone detected! score paused.":
                 print("No phone detected. Score paused.")
-                doc_ref = db.collection("coaster").document("tZ00L2SuCpkHV4knZs6x")
-                score = doc_ref.get().to_dict().get("score")
-                score_value = score + score_value if score is not None else score_value
-                db.collection("coaster").document("tZ00L2SuCpkHV4knZs6x").set({
+                remainingPoints = coaster_ref.get().to_dict().get("remainingPoints")
+                remainingPoints = remainingPoints if remainingPoints + score_value is not None else score_value
+
+                users_ref.set({
+                    "remainingPoints": remainingPoints,
+                    "timestamp": time.time()
+                })
+                coaster_ref.update({
                     "score": score_value,
                     "timestamp": time.time()
                 })
