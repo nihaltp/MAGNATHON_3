@@ -17,6 +17,7 @@ int score = 0;
 unsigned long timeNow = 0;
 unsigned long scoreInterval = 10 * 1000;
 
+bool firstTime = true;
 bool pause = false;
 bool failed = false;
 
@@ -37,15 +38,11 @@ void setup() {
 }
 
 void loop() {
-  if (pause) {
+  if (pause || failed) {
     return;
   }
 
-  if (failed) {
-    return;
-  }
-
-  if (!checkIR()) {
+  if (!firstTime && !checkIR()) {
     Serial.println("score: " + String(score));
     score = 0;
     timeNow = millis();
@@ -58,6 +55,7 @@ void loop() {
   }
 
   if (millis() - timeNow > scoreInterval) {
+    firstTime = false;
     if (checkIR()) {
       score += 1;
       Serial.println("score: " + String(score));
