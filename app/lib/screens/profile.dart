@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:magnathon/state/state_manager.dart';
 import 'package:magnathon/widgets/admin_tile.dart';
+import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -26,7 +28,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             elevation: 0,
             backgroundColor: const Color(0xFF1A237E),
             title: Text(
-              "Magnathon Cafe",
+              Provider.of<StateManagement>(context).username,
               style: GoogleFonts.poppins(fontSize: 20.sp, fontWeight: FontWeight.bold, color: Colors.white),
             ),
             flexibleSpace: FlexibleSpaceBar(
@@ -69,11 +71,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
-                        Column(children: [Text("1,240", style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold)), Text("Users", style: TextStyle(fontSize: 14.sp, color: Colors.grey))]),
+                        Column(children: [Text("${Provider.of<StateManagement>(context).users}", style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold)), Text("Users", style: TextStyle(fontSize: 14.sp, color: Colors.grey))]),
                         Container(width: 1, height: 4.h, color: Colors.grey.shade200),
-                        Column(children: [Text("450h", style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold)), Text("Off-Time", style: TextStyle(fontSize: 14.sp, color: Colors.grey))]),
-                        Container(width: 1, height: 4.h, color: Colors.grey.shade200),
-                        Column(children: [Text("32/32", style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold)), Text("Coasters", style: TextStyle(fontSize: 14.sp, color: Colors.grey))]),
+                        // Column(children: [Text("450h", style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold)), Text("Off-Time", style: TextStyle(fontSize: 14.sp, color: Colors.grey))]),
+                        // Container(width: 1, height: 4.h, color: Colors.grey.shade200),
+                        Column(children: [Text("${Provider.of<StateManagement>(context).coasters}", style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold)), Text("Coasters", style: TextStyle(fontSize: 14.sp, color: Colors.grey))]),
                       ],
                     ),
                   ),

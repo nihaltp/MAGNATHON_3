@@ -1,6 +1,11 @@
+import 'dart:developer';
+
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
+import 'package:magnathon/database/admin_database.dart';
 import 'package:magnathon/screens/qrscanner.dart';
+import 'package:magnathon/state/state_manager.dart';
+import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
 
 class LandingScreen extends StatefulWidget {
@@ -11,6 +16,16 @@ class LandingScreen extends StatefulWidget {
 }
 
 class _LandingScreenState extends State<LandingScreen> {
+
+  Future<void> getActiveCoasters() async {
+    List<String> activeCoasters = await DatabaseMethods().getActiveCoasters(Provider.of<StateManagement>(context, listen: false).docID);
+
+    if(mounted) {
+      log("$activeCoasters");
+      Provider.of<StateManagement>(context, listen: false).setActiveCoasters(activeCoasters, activeCoasters.length);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -33,7 +48,7 @@ class _LandingScreenState extends State<LandingScreen> {
                       ),
                     ),
                     Text(
-                      "Magnathon Cafe",
+                      Provider.of<StateManagement>(context).username,
                       style: TextStyle(
                         fontSize: 25.sp,
                         color: const Color(0xFF1A237E),
@@ -100,65 +115,115 @@ class _LandingScreenState extends State<LandingScreen> {
                 ),
               ),
               SizedBox(height: 4.h,),
-              Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  "Active Coasters",
-                  style: TextStyle(
-                    fontSize: 23.sp,
-                    fontWeight: FontWeight.bold
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    "Active Coasters",
+                    style: TextStyle(
+                      fontSize: 23.sp,
+                      fontWeight: FontWeight.bold
+                    ),
                   ),
-                ),
+                  IconButton(
+                    onPressed: () {
+                      getActiveCoasters();
+                    },
+                    icon: Icon(Icons.refresh, color: const Color(0xFF1A237E)),
+                    color: const Color(0xFF1A237E),
+                  )
+                ],
               ),
               SizedBox(height: 2.h,),
-              CarouselSlider.builder(
-                options: CarouselOptions(
-                  height: 25.h,
-                  enlargeCenterPage: true,
-                  enableInfiniteScroll: false,
-                  viewportFraction: 0.75,
-                ),
-                itemCount: 5,
-                itemBuilder: (context, index, realIndex) => Container(
-                  width: double.infinity,
-                  margin: EdgeInsets.symmetric(vertical: 1.h),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(24),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.04),
-                        blurRadius: 10,
-                        offset: const Offset(0, 4),
+              Consumer<StateManagement>(
+                builder: (context, value, child) {
+                  
+                  return CarouselSlider.builder(
+                    options: CarouselOptions(
+                      height: 25.h,
+                      enlargeCenterPage: true,
+                      enableInfiniteScroll: false,
+                      viewportFraction: 0.75,
+                    ),
+                    itemCount: value.activeCoasters == 0 ? 1 : value.activeCoasters,
+                    itemBuilder: (context, index, realIndex) {
+                      log("${value.activeCoasters}");
+                      if(value.activeCoasters == 0) {
+                        return Container(
+                      width: double.infinity,
+                      margin: EdgeInsets.symmetric(vertical: 1.h),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(24),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.04),
+                            blurRadius: 10,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                        border: Border.all(color: Colors.black.withOpacity(0.05)),
                       ),
-                    ],
-                    border: Border.all(color: Colors.black.withOpacity(0.05)),
-                  ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        Icons.sensors_rounded,
-                        color: const Color(0xFF3F51B5),
-                        size: 32.sp,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.sensors_off,
+                            color: Colors.red,
+                            size: 32.sp,
+                          ),
+                          SizedBox(height: 1.h),
+                          Text(
+                            "No Active\nCoasters",
+                            style: TextStyle(
+                              color: const Color(0xFF1A237E),
+                              fontSize: 20.sp,
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+                        ],
                       ),
-                      SizedBox(height: 1.h),
-                      Text(
-                        "Coaster ${index + 1}",
-                        style: TextStyle(
-                          color: const Color(0xFF1A237E),
-                          fontSize: 17.sp,
-                          fontWeight: FontWeight.w800,
-                        ),
+                    );
+                      }else{
+                      return Container(
+                      width: double.infinity,
+                      margin: EdgeInsets.symmetric(vertical: 1.h),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(24),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.04),
+                            blurRadius: 10,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                        border: Border.all(color: Colors.black.withOpacity(0.05)),
                       ),
-                      SizedBox(height: 1.h),
-                      Text(
-                        "Active • Table 0${index + 1}",
-                        style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold),
-                      )
-                    ],
-                  ),
-                ),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.sensors_rounded,
+                            color: const Color(0xFF3F51B5),
+                            size: 32.sp,
+                          ),
+                          SizedBox(height: 1.h),
+                          Text(
+                            "Coaster ${index + 1}",
+                            style: TextStyle(
+                              color: const Color(0xFF1A237E),
+                              fontSize: 20.sp,
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                      }
+                    }
+                  );
+                }
               )
             ],
           ),

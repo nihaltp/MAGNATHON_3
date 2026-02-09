@@ -25,7 +25,7 @@ class DatabaseMethods {
   Future signIn(String email, String password) async {
     List finalResult = [];
     try {
-      QuerySnapshot result = await database.collection("authorities").where("email", isEqualTo: "sahadevan@gmail.com").get() ;//.where("password", isEqualTo: password).get();
+      QuerySnapshot result = await database.collection("admin").where("email", isEqualTo: email).where("password", isEqualTo: password).get();
       log("${result.docs[0]['password']}");
       if(result.docs.isNotEmpty) {
         finalResult.add(result.docs[0]);
@@ -43,6 +43,39 @@ class DatabaseMethods {
       return true;
     } catch(e) {
       return false;
+    }
+  }
+
+  Future getActiveCoasters(String id) async {
+    List<String> finalResult = [];
+    try {
+      final adminRef = FirebaseFirestore.instance.collection('admin').doc(id);
+
+      QuerySnapshot result = await FirebaseFirestore.instance.collection('coaster').where('admin', isEqualTo: adminRef).where('active', isEqualTo: true).get();
+
+      if(result.docs.isNotEmpty) {
+        for(var i in result.docs) {
+          finalResult.add(i.id);
+        }
+      }
+      return finalResult;
+    } catch(e) {
+      return finalResult;
+    }
+  }
+
+  Future getLeaderboard() async {
+    List<Map<String, dynamic>> finalResult = [];
+    try {
+      QuerySnapshot result = await database.collection("users").orderBy("score", descending: true).get();
+      if(result.docs.isNotEmpty) {
+        for(var i in result.docs) {
+          finalResult.add(i.data() as Map<String, dynamic>);
+        }
+      }
+      return finalResult;
+    } catch(e) {
+      return finalResult;
     }
   }
 
