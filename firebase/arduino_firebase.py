@@ -27,6 +27,7 @@ time.sleep(2)  # wait for Arduino reset
 print("Listening to Arduino...")
 
 input_buffer = ""
+score_value = 0
 
 while True:
     try:
@@ -51,16 +52,16 @@ while True:
             if data.startswith("score: "):
                 try:
                     score_value = int(data.split(": ")[1])
-                    
-                    # Update Firestore database
-                    db.collection("coaster").document("tZ00L2SuCpkHV4knZs6x").set({
-                        "score": score_value,
-                        "timestamp": time.time()
-                    })
-                    print(f"Successfully updated Firebase with score: {score_value}")
-                    
                 except (ValueError, IndexError) as e:
                     print(f"Error parsing score: {e}")
+
+            elif data == "No Phone Detected! Score paused.":
+                print("No phone detected. Score paused.")
+                db.collection("coaster").document("tZ00L2SuCpkHV4knZs6x").set({
+                    "score": score_value,
+                    "timestamp": time.time()
+                })
+                score_value = 0
 
     except Exception as e:
         print("Error:", e)
