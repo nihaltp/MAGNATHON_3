@@ -29,6 +29,18 @@ void loop() {
     return;
   }
 
+  if (failed) {
+    return;
+  }
+
+  if (!checkIR()) {
+    Serial.println("score: " + String(score));
+    score = 0;
+    timeNow = millis();
+    failed = true;
+    return;
+  }
+
   if (timeNow == 0) {
     timeNow = millis();
   }
