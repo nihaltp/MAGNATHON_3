@@ -53,6 +53,7 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBody: true,
       body: _getPage(_selectedIndex),
       bottomNavigationBar: CrystalNavigationBar(
         currentIndex: _selectedIndex,
@@ -60,7 +61,7 @@ class _HomePageState extends State<HomePage> {
         unselectedItemColor: Colors.white.withOpacity(0.6),
         borderWidth: 1,
         outlineBorderColor: Colors.white.withOpacity(0.2),
-        backgroundColor: Colors.black.withOpacity(0.35),
+        backgroundColor: Colors.white.withOpacity(0.35),
         paddingR: const EdgeInsets.all(0),
         borderRadius: 30,
         onTap: (index) {
