@@ -63,6 +63,9 @@ while True:
                 })
                 score_value = 0
 
+            else:
+                print("Arduino: ", data)
+
     except Exception as e:
         print("Error:", e)
         time.sleep(1)
