@@ -1,5 +1,6 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
+import 'package:magnathon/screens/qrscanner.dart';
 import 'package:sizer/sizer.dart';
 
 class LandingScreen extends StatefulWidget {
@@ -45,7 +46,7 @@ class _LandingScreenState extends State<LandingScreen> {
               SizedBox(height: 2.h,),
               GestureDetector(
                 onTap: () {
-                  
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => QRScannerScreen()));
                 },
                 child: Container(
                   padding: EdgeInsets.symmetric(vertical: 2.h, horizontal: 8.w),
@@ -137,7 +138,7 @@ class _LandingScreenState extends State<LandingScreen> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Icon(
-                        Icons.sensors_rounded, // Changed to a hardware-relevant icon
+                        Icons.sensors_rounded,
                         color: const Color(0xFF3F51B5),
                         size: 32.sp,
                       ),
