@@ -61,13 +61,6 @@ while True:
                     
                 except (ValueError, IndexError) as e:
                     print(f"Error parsing score: {e}")
-            
-            else:
-                # Store other sensor data in arduino_data collection
-                db.collection("arduino_data").add({
-                    "value": data,
-                    "timestamp": time.time()
-                })
 
     except Exception as e:
         print("Error:", e)
