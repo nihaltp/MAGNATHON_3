@@ -40,6 +40,7 @@ dependencies:
   cloud_firestore: ^6.1.2
   carousel_slider: ^5.1.1
   animated_leaderboard: ^0.1.4
+  rive: ^0.13.20
   google_fonts: ^6.3.2
 
   # The following adds the Cupertino Icons font to your application.
