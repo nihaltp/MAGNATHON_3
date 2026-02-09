@@ -16,6 +16,7 @@ int score = 0;
 unsigned long timeNow = 0;
 unsigned long scoreInterval = 1000;
 
+bool first = true;
 bool pause = false;
 bool failed = false;
 
@@ -65,6 +66,16 @@ void loop() {
   }
 
   if (pause) return;
+
+  if (first) {
+    if (checkIR()) {
+      Serial.println("Phone detected on start, starting scoring.");
+      first = false;
+    } else {
+      Serial.println("No phone detected on start, waiting for reset.");
+      return;
+    }
+  }
 
   // --- 2. GAME LOGIC ---
   
