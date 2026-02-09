@@ -13,13 +13,17 @@ class AuthService {
     required String name,
   }) async {
     try {
+      print('AuthService: Creating user with email: $email');
       UserCredential userCredential = await _firebaseAuth.createUserWithEmailAndPassword(
         email: email,
         password: password,
       );
 
+      final uid = userCredential.user!.uid;
+      print('AuthService: User created with uid: $uid');
+
       UserModel userModel = UserModel(
-        uid: userCredential.user!.uid,
+        uid: uid,
         email: email,
         name: name,
         score: 0,
@@ -28,10 +32,12 @@ class AuthService {
         createdAt: DateTime.now(),
       );
 
+      print('AuthService: Saving user data to Firestore for uid: $uid');
       await _firestore
           .collection('users')
-          .doc(userCredential.user!.uid)
+          .doc(uid)
           .set(userModel.toMap());
+      print('AuthService: Successfully saved user data to Firestore');
 
       return userModel;
     } on FirebaseAuthException catch (e) {
@@ -45,7 +51,9 @@ class AuthService {
     } catch (e) {
       // Handle Pigeon serialization errors and other platform channel errors
       String errorMessage = e.toString();
+      print('AuthService: Caught exception in signUp: $e');
       if (errorMessage.contains('PigeonUserDetails')) {
+        print('AuthService: PigeonUserDetails error detected, attempting recovery');
         // User was likely created successfully despite the platform error
         // Try to get the current user
         await Future.delayed(const Duration(milliseconds: 500));
@@ -62,6 +70,7 @@ class AuthService {
             createdAt: DateTime.now(),
           );
           
+          print('AuthService: Saving recovered user data to Firestore for uid: ${user.uid}');
           await _firestore
               .collection('users')
               .doc(user.uid)
@@ -69,6 +78,7 @@ class AuthService {
           
           DocumentSnapshot doc = await _firestore.collection('users').doc(user.uid).get();
           if (doc.exists) {
+            print('AuthService: Successfully recovered and saved user data');
             return UserModel.fromMap(doc.data() as Map<String, dynamic>);
           }
         }

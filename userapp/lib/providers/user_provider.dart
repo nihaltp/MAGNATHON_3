@@ -8,6 +8,7 @@ class UserProvider extends ChangeNotifier {
   final DatabaseService _databaseService = DatabaseService();
 
   UserModel? _user;
+  String? _userId;
   bool _isLoading = false;
   String? _error;
 
@@ -17,11 +18,12 @@ class UserProvider extends ChangeNotifier {
 
   /// Load user data from Firebase
   Future<void> loadUser(String userId) async {
-    if (_user?.uid == userId) {
-      // User already loaded, don't reload
+    // Skip if same user is already loaded
+    if (_userId == userId && _user != null) {
       return;
     }
 
+    _userId = userId;
     _isLoading = true;
     _error = null;
     notifyListeners();
@@ -30,9 +32,11 @@ class UserProvider extends ChangeNotifier {
       final userData = await _databaseService.getUserData(userId);
       _user = userData;
       _error = null;
+      print('UserProvider: Successfully loaded user data for $userId');
     } catch (e) {
       _error = e.toString();
       _user = null;
+      print('UserProvider: Error loading user data: $e');
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -41,18 +45,26 @@ class UserProvider extends ChangeNotifier {
 
   /// Refresh user data from database
   Future<void> refreshUser() async {
-    if (_user == null) return;
+    // Use stored userId, even if _user is null
+    final userIdToRefresh = _userId;
+    if (userIdToRefresh == null) {
+      print('UserProvider: No userId stored, cannot refresh');
+      return;
+    }
 
     _isLoading = true;
     _error = null;
     notifyListeners();
 
     try {
-      final userData = await _databaseService.getUserData(_user!.uid);
+      final userData = await _databaseService.getUserData(userIdToRefresh);
       _user = userData;
       _error = null;
+      print('UserProvider: Successfully refreshed user data for $userIdToRefresh');
     } catch (e) {
       _error = e.toString();
+      _user = null;
+      print('UserProvider: Error refreshing user data: $e');
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -103,6 +115,7 @@ class UserProvider extends ChangeNotifier {
   /// Clear user data on logout
   void clearUser() {
     _user = null;
+    _userId = null;
     _error = null;
     _isLoading = false;
     notifyListeners();

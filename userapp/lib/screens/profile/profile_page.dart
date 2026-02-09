@@ -29,7 +29,25 @@ class _ProfilePageState extends State<ProfilePage> {
 
           UserModel? user = userProvider.user;
           if (user == null) {
-            return const Center(child: Text('User not found'));
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    'User data not found',
+                    style: TextStyle(fontSize: 4.w, color: AppColors.white),
+                  ),
+                  SizedBox(height: 2.h),
+                  ElevatedButton.icon(
+                    onPressed: () {
+                      userProvider.refreshUser();
+                    },
+                    icon: const Icon(Icons.refresh),
+                    label: const Text('Retry'),
+                  ),
+                ],
+              ),
+            );
           }
 
           return Container(
@@ -61,22 +79,46 @@ class _ProfilePageState extends State<ProfilePage> {
                             color: AppColors.white,
                           ),
                         ),
-                        GestureDetector(
-                          onTap: () {
-                            _showLogoutDialog();
-                          },
-                          child: Container(
-                            padding: EdgeInsets.all(2.5.w),
-                            decoration: BoxDecoration(
-                              color: AppColors.accentColor,
-                              shape: BoxShape.circle,
+                        Row(
+                          children: [
+                            // Refresh button
+                            GestureDetector(
+                              onTap: () {
+                                context.read<UserProvider>().refreshUser();
+                              },
+                              child: Container(
+                                padding: EdgeInsets.all(2.5.w),
+                                decoration: BoxDecoration(
+                                  color: AppColors.accentColor,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Icon(
+                                  Icons.refresh,
+                                  color: AppColors.primaryDark,
+                                  size: 5.w,
+                                ),
+                              ),
                             ),
-                            child: Icon(
-                              Icons.logout,
-                              color: AppColors.primaryDark,
-                              size: 5.w,
+                            SizedBox(width: 2.w),
+                            // Logout button
+                            GestureDetector(
+                              onTap: () {
+                                _showLogoutDialog();
+                              },
+                              child: Container(
+                                padding: EdgeInsets.all(2.5.w),
+                                decoration: BoxDecoration(
+                                  color: AppColors.accentColor,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Icon(
+                                  Icons.logout,
+                                  color: AppColors.primaryDark,
+                                  size: 5.w,
+                                ),
+                              ),
                             ),
-                          ),
+                          ],
                         ),
                       ],
                     ),

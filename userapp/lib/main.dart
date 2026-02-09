@@ -74,13 +74,34 @@ class _AuthWrapperState extends State<AuthWrapper> {
             // Only load if user ID changed
             if (_lastUserId != userId) {
               _lastUserId = userId;
-              // Schedule the load after the build completes
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                context.read<UserProvider>().loadUser(userId);
-                context.read<LeaderboardProvider>().loadLeaderboard();
-              });
+              print('AuthWrapper: User logged in with uid: $userId, triggering load');
+              // Load immediately (context.read is safe for one-time operations)
+              context.read<UserProvider>().loadUser(userId);
+              context.read<LeaderboardProvider>().loadLeaderboard();
             }
-            return const HomePage();
+            
+            // Show home page only after user data is loaded
+            return Consumer<UserProvider>(
+              builder: (context, userProvider, child) {
+                // Always show loading while data is being fetched OR if user is null
+                if (userProvider.isLoading || (userProvider.user == null)) {
+                  // If we have an error and show the error UI, don't show loading
+                  if (userProvider.user == null && !userProvider.isLoading && userProvider.error != null) {
+                    // Show error UI - HomePage will handle this
+                    return const HomePage();
+                  }
+                  // Show loading
+                  return const Scaffold(
+                    body: Center(
+                      child: CircularProgressIndicator(),
+                    ),
+                  );
+                }
+                
+                // User data is loaded, show home page
+                return const HomePage();
+              },
+            );
           }
         }
         return const Scaffold(

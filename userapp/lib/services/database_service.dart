@@ -7,12 +7,16 @@ class DatabaseService {
   // Get user data
   Future<UserModel?> getUserData(String uid) async {
     try {
+      print('DatabaseService: Fetching user data for uid: $uid');
       DocumentSnapshot doc = await _firestore.collection('users').doc(uid).get();
       if (doc.exists) {
+        print('DatabaseService: User document found for uid: $uid');
         return UserModel.fromMap(doc.data() as Map<String, dynamic>);
       }
+      print('DatabaseService: User document NOT found for uid: $uid');
       return null;
     } catch (e) {
+      print('DatabaseService: Error fetching user data: $e');
       throw e.toString();
     }
   }

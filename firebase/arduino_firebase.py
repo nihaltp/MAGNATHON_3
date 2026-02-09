@@ -2,7 +2,7 @@ import os
 import serial
 import time
 import firebase_admin
-from firebase_admin import credentials, db
+from firebase_admin import credentials, firestore
 from dotenv import load_dotenv
 
 #Load environment variables
@@ -15,11 +15,9 @@ BAUD_RATE = 9600
 
 # ---------- FIREBASE CONFIG ----------
 cred = credentials.Certificate("firebase_key.json")
-firebase_admin.initialize_app(cred, {
-    "databaseURL": firebase_url
-})
+firebase_admin.initialize_app(cred)
 
-ref = db.reference("arduino_data")
+db = firestore.client()
 
 # ---------- SERIAL CONNECTION ----------
 ser = serial.Serial(SERIAL_PORT, BAUD_RATE, timeout=1)
@@ -33,12 +31,29 @@ while True:
             data = ser.readline().decode("utf-8").strip()
             print("Received:", data)
 
-            # Upload to Firebase
-            ref.push({
-                "value": data,
-                "timestamp": time.time()
-            })
+            # Check if this is a Firebase score update
+            if data.startswith("FIREBASE_SCORE:"):
+                try:
+                    score_value = int(data.split(":")[1])
+                    
+                    # Update Firestore database
+                    db.collection("coaster").document("tZ00L2SuCpkHV4knZs6x").set({
+                        "score": score_value,
+                        "timestamp": time.time()
+                    })
+                    print(f"Successfully updated Firebase with score: {score_value}")
+                    
+                except (ValueError, IndexError) as e:
+                    print(f"Error parsing score: {e}")
+            
+            else:
+                # Store other sensor data in arduino_data collection
+                db.collection("arduino_data").add({
+                    "value": data,
+                    "timestamp": time.time()
+                })
 
     except Exception as e:
         print("Error:", e)
         time.sleep(1)
+
