@@ -31,11 +31,10 @@ while True:
             data = ser.readline().decode("utf-8").strip()
             print("Received:", data)
 
-<<<<<<< HEAD
             # Check if this is a Firebase score update
-            if data.startswith("FIREBASE_SCORE:"):
+            if data.startswith("score: "):
                 try:
-                    score_value = int(data.split(":")[1])
+                    score_value = int(data.split(": ")[1])
                     
                     # Update Firestore database
                     db.collection("coaster").document("tZ00L2SuCpkHV4knZs6x").set({
@@ -51,17 +50,9 @@ while True:
                 # Store other sensor data in arduino_data collection
                 db.collection("arduino_data").add({
                     "value": data,
-=======
-            if (data and data.startswith("score: ")):
-                data = data.split(": ")[1]  # Extract score value
-                print("Score:", data)
-                ref.push({
-                    "score": data,
->>>>>>> 097466e7dd8604cc2dbae8e291133a991f90aea5
                     "timestamp": time.time()
                 })
 
     except Exception as e:
         print("Error:", e)
         time.sleep(1)
-
