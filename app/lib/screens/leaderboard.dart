@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:magnathon/database/admin_database.dart';
 import 'package:magnathon/state/state_manager.dart';
 import 'package:magnathon/widgets/circular_lead_user.dart';
 import 'package:provider/provider.dart';
@@ -42,8 +43,10 @@ class _LeaderBoardScreenState extends State<LeaderBoardScreen> {
     return circularTop3Final;
   }
 
-  void _generateTopUsers() {
-
+  Future<void> refreshLeaderboard() async {
+    List<Map<String, dynamic>> leaderboard = await DatabaseMethods().getLeaderboard();
+    if(mounted) Provider.of<StateManagement>(context, listen: false).setLeaderboard(leaderboard);
+    
   }
 
   @override
@@ -61,6 +64,9 @@ class _LeaderBoardScreenState extends State<LeaderBoardScreen> {
       appBar: AppBar(
         title: Text("Top Focusers", style: GoogleFonts.poppins(fontWeight: FontWeight.bold)),
         centerTitle: true,
+        actions: [
+          IconButton(onPressed: () {refreshLeaderboard();}, icon: const Icon(Icons.refresh))
+        ],
         backgroundColor: Colors.transparent,
         elevation: 0,
       ),

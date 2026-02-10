@@ -31,8 +31,7 @@ int score = 0;
 unsigned long timeNow = 0;
 unsigned long scoreInterval = 1000;
 
-bool first = true;
-bool pause = false;
+bool pause = true;
 bool failed = false;
 
 bool checkIR();
@@ -61,12 +60,14 @@ void loop() {
     if (message == "reset") {
       score = 0;
       failed = false;
+      pause = false;
       scrollNumber(itoa(score, buf, 10));
       Serial.println("Reset to 0");
     }
     if (message == "start") {
       score = 0;
       failed = false;
+      pause = false;
       timeNow = millis(); 
       Serial.println("Started");
     }
@@ -81,16 +82,6 @@ void loop() {
   }
 
   if (pause) return;
-
-  if (first) {
-    if (checkIR()) {
-      Serial.println("Phone detected on start, starting scoring.");
-      first = false;
-    } else {
-      Serial.println("No phone detected on start, waiting for reset.");
-      return;
-    }
-  }
 
   // --- 2. GAME LOGIC ---
   
