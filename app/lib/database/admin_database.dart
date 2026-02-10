@@ -116,4 +116,29 @@ class DatabaseMethods {
     }
   }
 
+  Future getUserDetails(String userID) async {
+    Map<String, dynamic> finalResult = {};
+    try {
+      DocumentSnapshot result = await database.collection("users").doc(userID).get();
+      if(result.exists) {
+        finalResult = result.data() as Map<String, dynamic>;
+      }
+      return finalResult;
+    } catch(e) {
+      return finalResult;
+    }
+  }
+
+  Future redeemPoints(String userID, int pointsToRedeem) async {
+    try {
+      final userRef = FirebaseFirestore.instance.collection('users').doc(userID);
+      await userRef.update({
+        "remainingPoints" : FieldValue.increment(-pointsToRedeem)
+      });
+      return true;
+    } catch(e) {
+      return false;
+    }
+  }
+
 }
