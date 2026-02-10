@@ -95,6 +95,9 @@ while True:
                     value = int(data.split(": ")[1])
                     if value > score_value:
                         score_value = value
+                        coaster_ref.update({
+                            "currScore": score_value,
+                        })
                 except (ValueError, IndexError) as e:
                     print(f"Error parsing score: {e}")
 
