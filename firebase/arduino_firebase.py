@@ -107,7 +107,9 @@ while True:
                 remainingPoints = remainingPoints if remainingPoints + score_value is not None else score_value
 
                 users_ref.update({
-                    "remainingPoints": remainingPoints
+                    "remainingPoints": remainingPoints,
+                    "score": score_value,
+                    "highScore": max(users_ref.get().to_dict().get("highScore"), score_value)
                 })
                 coaster_ref.update({
                     "currScore": 0,
