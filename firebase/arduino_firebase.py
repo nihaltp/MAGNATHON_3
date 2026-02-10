@@ -35,6 +35,14 @@ print("Listening to Arduino...")
 input_buffer = ""
 score_value = 0
 
+def update_coaster_ref(coaster_id: str):
+    global coaster_ref
+    coaster_ref = db.collection("coaster").document(coaster_id)
+
+def update_user_ref(users_id: str):
+    global users_ref
+    users_ref = db.collection("users").document(users_id)
+
 # 🔥 Firestore Listener (Flutter START trigger)
 def on_snapshot(doc_snapshot, changes, read_time):
     global game_active, score_value
@@ -50,6 +58,10 @@ def on_snapshot(doc_snapshot, changes, read_time):
             coaster_ref.update({
                 "currScore": 0,
             })
+
+            users_id = coaster_ref.get().to_dict().get("currUser")
+            users_id = users_id.split("/users/")[1] if users_id and "/users/" in users_id else users_id
+            update_user_ref(users_id)
 
             ser.write(b"start\n")
             game_active = True
@@ -91,16 +103,14 @@ while True:
                 remainingPoints = coaster_ref.get().to_dict().get("remainingPoints")
                 remainingPoints = remainingPoints if remainingPoints + score_value is not None else score_value
 
-                users_ref.set({
-                    "remainingPoints": remainingPoints,
-                    "timestamp": time.time()
+                users_ref.update({
+                    "remainingPoints": remainingPoints
                 })
                 coaster_ref.update({
-                    "score": score_value,
-                    "timestamp": time.time()
-                })
-                db.collection("coaster").document(coaster_id).update({
-                    "score": score_value
+                    "currScore": 0,
+                    "currUser": None,
+                    "active": False,
+                    "startTime": None
                 })
 
     except Exception as e:
