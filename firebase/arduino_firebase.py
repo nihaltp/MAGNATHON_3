@@ -34,6 +34,8 @@ print("Listening to Arduino...")
 
 input_buffer = ""
 score_value = 0
+game_active = False
+timeNow = None
 
 def update_coaster_ref(coaster_id: str):
     global coaster_ref
@@ -53,7 +55,7 @@ def on_snapshot(doc_snapshot, changes, read_time):
         if data.get("active") == True and not game_active:
             print("Game Started from Flutter!")
             score_value = 0
-
+            game_active = True
             # Reset score in Firestore
             coaster_ref.update({
                 "currScore": 0,
@@ -65,6 +67,7 @@ def on_snapshot(doc_snapshot, changes, read_time):
 
             ser.write(b"start\n")
             game_active = True
+            timeNow = time.time()
 
 # Attach listener
 coaster_watch = coaster_ref.on_snapshot(on_snapshot)
@@ -95,9 +98,10 @@ while True:
                     value = int(data.split(": ")[1])
                     if value > score_value:
                         score_value = value
-                        coaster_ref.update({
-                            "currScore": score_value,
-                        })
+                        if (timeNow is not None and time.time() - timeNow > 10):
+                            coaster_ref.update({
+                                "currScore": score_value,
+                            })
                 except (ValueError, IndexError) as e:
                     print(f"Error parsing score: {e}")
 
