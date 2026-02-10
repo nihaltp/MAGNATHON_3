@@ -37,6 +37,7 @@ bool failed = false;
 bool checkIR();
 void displaySetup();
 void scrollNumber(const char* msg);
+void displayNumber(int num);
 
 void setup() {
   Serial.begin(9600);
@@ -47,7 +48,7 @@ void setup() {
   pinMode(IR4, INPUT);
 
   displaySetup();
-  scrollNumber(itoa(0, buf, 10));
+  displayNumber(0); // Use simple display instead of scroll
   Serial.println("System Ready. Waiting for phone...");
 }
 
@@ -61,7 +62,7 @@ void loop() {
       score = 0;
       failed = false;
       pause = false;
-      scrollNumber(itoa(score, buf, 10));
+      displayNumber(score); // Use simple display
       Serial.println("Reset to 0");
     }
     if (message == "start") {
@@ -78,6 +79,14 @@ void loop() {
     if (message == "unpause") {
       pause = false;
       Serial.println("Unpaused");
+    }
+    if (message == "test") {
+      // Test display with all digits
+      for(int i = 0; i < 10; i++) {
+        displayNumber(i);
+        delay(500);
+      }
+      Serial.println("Display test complete");
     }
   }
 
@@ -100,7 +109,12 @@ void loop() {
       } else {
         score++;
         Serial.println("Score: " + String(score));
-        scrollNumber(itoa(score, buf, 10));
+        // Use simple display for single digits, scroll for multi-digit
+        if (score < 10) {
+          displayNumber(score);
+        } else {
+          scrollNumber(itoa(score, buf, 10));
+        }
       }
     } else {
       // Phone is GONE (Sensors are HIGH)
@@ -135,6 +149,13 @@ void displaySetup() {
   lc.shutdown(0, false);
   lc.setIntensity(0, 8);
   lc.clearDisplay(0);
+  
+  // Test pattern - all LEDs on briefly to verify hardware
+  for(int row=0; row<8; row++) {
+    lc.setRow(0, row, 0xFF);
+  }
+  delay(500);
+  lc.clearDisplay(0);
 }
 
 void scrollNumber(const char* msg) {
@@ -164,5 +185,15 @@ void scrollNumber(const char* msg) {
     }
 
     delay(120);
+  }
+}
+
+// Simple non-scrolling display for a single digit number
+void displayNumber(int num) {
+  if (num < 0 || num > 9) num = 0;
+  
+  lc.clearDisplay(0);
+  for(int row = 0; row < 8; row++) {
+    lc.setRow(0, row, digits[num][row]);
   }
 }
