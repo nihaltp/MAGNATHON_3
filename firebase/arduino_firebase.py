@@ -61,9 +61,15 @@ def on_snapshot(doc_snapshot, changes, read_time):
                 "currScore": 0,
             })
 
-            users_id = coaster_ref.get().to_dict().get("currUser")
-            users_id = users_id.split("/users/")[1] if users_id and "/users/" in users_id else users_id
-            update_user_ref(users_id)
+            curr_user = coaster_ref.get().to_dict().get("currUser")
+            # Extract user ID from DocumentReference
+            if curr_user:
+                if isinstance(curr_user, str):
+                    users_id = curr_user.split("/users/")[1] if "/users/" in curr_user else curr_user
+                else:
+                    # It's a DocumentReference object
+                    users_id = curr_user.id
+                update_user_ref(users_id)
 
             ser.write(b"start\n")
             game_active = True
@@ -107,13 +113,13 @@ while True:
 
             elif data == "no phone detected! score paused.":
                 print("No phone detected. Score paused.")
-                remainingPoints = coaster_ref.get().to_dict().get("remainingPoints")
-                remainingPoints = remainingPoints if remainingPoints + score_value is not None else score_value
+                remainingPoints = coaster_ref.get().to_dict().get("remainingPoints") or 0
+                remainingPoints = remainingPoints + score_value
 
                 users_ref.update({
                     "remainingPoints": remainingPoints,
                     "score": score_value,
-                    "highScore": max(users_ref.get().to_dict().get("highScore"), score_value)
+                    "highScore": max(users_ref.get().to_dict().get("highScore") or 0, score_value)
                 })
                 coaster_ref.update({
                     "currScore": 0,
