@@ -5,13 +5,43 @@ import firebase_admin
 from firebase_admin import credentials, firestore
 from dotenv import load_dotenv
 import msvcrt
+from serial.tools import list_ports
 
 #Load environment variables
 load_dotenv()
 firebase_url = os.getenv("FIREBASE_URL")
 
 # ---------- SERIAL CONFIG ----------
-SERIAL_PORT = "COM3"       # Windows: COM3 | Linux: /dev/ttyUSB0
+def get_available_ports():
+    """List all available serial ports"""
+    ports = [port.device for port in list_ports.comports()]
+    return ports
+
+def find_arduino_port():
+    """Try to find Arduino port, or prompt user"""
+    ports = get_available_ports()
+    
+    if not ports:
+        print("❌ No serial ports available!")
+        print("Please connect your Arduino and try again.")
+        exit(1)
+    
+    print(f"Available ports: {ports}")
+    
+    # Try to find Arduino (common descriptions)
+    arduino_ports = [p for p in ports if 'Arduino' in p or 'CH340' in p or 'USB' in p]
+    
+    if arduino_ports:
+        port = arduino_ports[0]
+        print(f"✅ Using detected Arduino port: {port}")
+        return port
+    else:
+        # If no obvious Arduino found, use first port
+        port = ports[0]
+        print(f"⚠️  Could not auto-detect Arduino. Using first available port: {port}")
+        return port
+
+SERIAL_PORT = os.getenv("SERIAL_PORT") or find_arduino_port()
 BAUD_RATE = 9600
 
 # ---------- FIREBASE CONFIG ----------
@@ -104,10 +134,9 @@ while True:
                     value = int(data.split(": ")[1])
                     if value > score_value:
                         score_value = value
-                        if (timeNow is not None and time.time() - timeNow > 10):
-                            coaster_ref.update({
-                                "currScore": score_value,
-                            })
+                        coaster_ref.update({
+                            "currScore": score_value,
+                        })
                 except (ValueError, IndexError) as e:
                     print(f"Error parsing score: {e}")
 
