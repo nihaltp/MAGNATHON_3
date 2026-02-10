@@ -75,22 +75,28 @@ class _AuthWrapperState extends State<AuthWrapper> {
             if (_lastUserId != userId) {
               _lastUserId = userId;
               print('AuthWrapper: User logged in with uid: $userId, triggering load');
-              // Load immediately (context.read is safe for one-time operations)
-              context.read<UserProvider>().loadUser(userId);
-              context.read<LeaderboardProvider>().loadLeaderboard();
+              
+              // Ensure providers are loaded before Consumer renders
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                final userProvider = context.read<UserProvider>();
+                final leaderboardProvider = context.read<LeaderboardProvider>();
+                
+                if (userProvider.user == null) {
+                  print('AuthWrapper: Loading user and leaderboard data');
+                  userProvider.loadUser(userId);
+                  leaderboardProvider.loadLeaderboard();
+                }
+              });
             }
             
-            // Show home page only after user data is loaded
+            // Show home page with loading state
             return Consumer<UserProvider>(
               builder: (context, userProvider, child) {
-                // Always show loading while data is being fetched OR if user is null
-                if (userProvider.isLoading || (userProvider.user == null)) {
-                  // If we have an error and show the error UI, don't show loading
-                  if (userProvider.user == null && !userProvider.isLoading && userProvider.error != null) {
-                    // Show error UI - HomePage will handle this
-                    return const HomePage();
-                  }
-                  // Show loading
+                print('AuthWrapper: Rendering Consumer - isLoading=${userProvider.isLoading}, user=${userProvider.user?.name}');
+                
+                // Show loading while fetching
+                if (userProvider.isLoading) {
+                  print('AuthWrapper: Data is loading...');
                   return const Scaffold(
                     body: Center(
                       child: CircularProgressIndicator(),
@@ -98,7 +104,14 @@ class _AuthWrapperState extends State<AuthWrapper> {
                   );
                 }
                 
-                // User data is loaded, show home page
+                // If we have user data, show home page
+                if (userProvider.user != null) {
+                  print('AuthWrapper: User data loaded, showing HomePage');
+                  return const HomePage();
+                }
+                
+                // If not loading and no user, show home page (it will display error UI)
+                print('AuthWrapper: No user data available, showing HomePage for error handling');
                 return const HomePage();
               },
             );

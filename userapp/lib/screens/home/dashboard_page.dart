@@ -20,6 +20,19 @@ class _DashboardPageState extends State<DashboardPage> {
   final AuthService _authService = AuthService();
 
   @override
+  void initState() {
+    super.initState();
+    // Ensure leaderboard is loaded when dashboard opens
+    Future.microtask(() {
+      final leaderboardProvider = context.read<LeaderboardProvider>();
+      if (leaderboardProvider.leaderboard.isEmpty && !leaderboardProvider.isLoading) {
+        print('DashboardPage: Leaderboard empty, triggering load from database');
+        leaderboardProvider.loadLeaderboard();
+      }
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Consumer2<UserProvider, LeaderboardProvider>(
@@ -219,6 +232,30 @@ class _DashboardPageState extends State<DashboardPage> {
     }
 
     List<UserModel> leaderboard = leaderboardProvider.leaderboard;
+
+    // Handle empty leaderboard
+    if (leaderboard.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              'No leaderboard data available',
+              style: TextStyle(fontSize: 3.5.w, color: AppColors.white),
+            ),
+            SizedBox(height: 2.h),
+            ElevatedButton.icon(
+              onPressed: () {
+                print('DashboardPage: Manually refreshing leaderboard');
+                leaderboardProvider.refreshLeaderboard();
+              },
+              icon: const Icon(Icons.refresh),
+              label: const Text('Load Leaderboard'),
+            ),
+          ],
+        ),
+      );
+    }
 
     return ListView.builder(
       shrinkWrap: true,
