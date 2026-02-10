@@ -113,9 +113,9 @@ while True:
 
             elif data == "no phone detected! score paused.":
                 print("No phone detected. Score paused.")
-                remainingPoints = coaster_ref.get().to_dict().get("remainingPoints") or 0
+                remainingPoints = users_ref.get().to_dict().get("remainingPoints") or 0
                 remainingPoints = remainingPoints + score_value
-                score = coaster_ref.get().to_dict().get("score") or 0
+                score = users_ref.get().to_dict().get("score") or 0
                 score = score + score_value
 
                 users_ref.update({

@@ -1,7 +1,7 @@
 #include <Arduino.h>
 #include <LedControl.h>
 
-#define SEGMENT_LOAD_PIN 7
+#define SEGMENT_LOAD_PIN 3
 #define SEGMENT_CLOCK_PIN 13
 #define SEGMENT_DATA_PIN 11
 

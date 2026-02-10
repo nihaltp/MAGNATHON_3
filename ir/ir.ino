@@ -1,7 +1,7 @@
 #include <Arduino.h>
 #include <LedControl.h>
 
-#define SEGMENT_LOAD_PIN 7
+#define SEGMENT_LOAD_PIN 3
 #define SEGMENT_CLOCK_PIN 13
 #define SEGMENT_DATA_PIN 11
 
@@ -10,7 +10,7 @@
 #define IR3 8
 #define IR4 10
 
-LedControl lc = LedControl(SEGMENT_DATA_PIN, SEGMENT_CLOCK_PIN, SEGMENT_LOAD_PIN);
+LedControl lc = LedControl(SEGMENT_DATA_PIN, SEGMENT_CLOCK_PIN, SEGMENT_LOAD_PIN, 1);
 
 // 8x8 font for digits 0–9
 byte digits[10][8] = {
@@ -37,6 +37,7 @@ bool failed = false;
 bool checkIR();
 void displaySetup();
 void scrollNumber(const char* msg);
+void displayNumber(int num);
 
 void setup() {
   Serial.begin(9600);
@@ -47,7 +48,7 @@ void setup() {
   pinMode(IR4, INPUT);
 
   displaySetup();
-  scrollNumber(itoa(0, buf, 10));
+  displayNumber(0); // Use simple display instead of scroll
   Serial.println("System Ready. Waiting for phone...");
 }
 
@@ -61,7 +62,7 @@ void loop() {
       score = 0;
       failed = false;
       pause = false;
-      scrollNumber(itoa(score, buf, 10));
+      displayNumber(score); // Use simple display
       Serial.println("Reset to 0");
     }
     if (message == "start") {
@@ -78,6 +79,24 @@ void loop() {
     if (message == "unpause") {
       pause = false;
       Serial.println("Unpaused");
+    }
+    if (message == "test") {
+      // Test display with all digits
+      for(int i = 0; i < 10; i++) {
+        displayNumber(i);
+        delay(500);
+      }
+      Serial.println("Display test complete");
+    }
+    if (message == "flash") {
+      // Simple flash test
+      Serial.println("Flash test: All ON");
+      for(int row=0; row<8; row++) {
+        lc.setRow(0, row, 0xFF);
+      }
+      delay(1000);
+      Serial.println("Flash test: All OFF");
+      lc.clearDisplay(0);
     }
   }
 
@@ -100,7 +119,12 @@ void loop() {
       } else {
         score++;
         Serial.println("Score: " + String(score));
-        scrollNumber(itoa(score, buf, 10));
+        // Use simple display for single digits, scroll for multi-digit
+        if (score < 10) {
+          displayNumber(score);
+        } else {
+          scrollNumber(itoa(score, buf, 10));
+        }
       }
     } else {
       // Phone is GONE (Sensors are HIGH)
@@ -135,6 +159,16 @@ void displaySetup() {
   lc.shutdown(0, false);
   lc.setIntensity(0, 8);
   lc.clearDisplay(0);
+  
+  // Test pattern - all LEDs on briefly to verify hardware
+  Serial.println("Display init: TEST PATTERN");
+  for(int row=0; row<8; row++) {
+    lc.setRow(0, row, 0xFF);
+  }
+  delay(500);
+  lc.clearDisplay(0);
+  delay(50);
+  Serial.println("Display init: COMPLETE");
 }
 
 void scrollNumber(const char* msg) {
@@ -164,5 +198,15 @@ void scrollNumber(const char* msg) {
     }
 
     delay(120);
+  }
+}
+
+// Simple non-scrolling display for a single digit number
+void displayNumber(int num) {
+  if (num < 0 || num > 9) num = 0;
+  
+  lc.clearDisplay(0);
+  for(int row = 0; row < 8; row++) {
+    lc.setRow(0, row, digits[num][row]);
   }
 }
