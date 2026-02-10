@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:magnathon/database/admin_database.dart';
+import 'package:magnathon/screens/coaster_details.dart';
 import 'package:magnathon/screens/qrscanner.dart';
 import 'package:magnathon/state/state_manager.dart';
 import 'package:provider/provider.dart';
@@ -185,41 +186,47 @@ class _LandingScreenState extends State<LandingScreen> {
                       ),
                     );
                       }else{
-                      return Container(
-                      width: double.infinity,
-                      margin: EdgeInsets.symmetric(vertical: 1.h),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(24),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.04),
-                            blurRadius: 10,
-                            offset: const Offset(0, 4),
-                          ),
-                        ],
-                        border: Border.all(color: Colors.black.withOpacity(0.05)),
-                      ),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.sensors_rounded,
-                            color: const Color(0xFF3F51B5),
-                            size: 32.sp,
-                          ),
-                          SizedBox(height: 1.h),
-                          Text(
-                            "Coaster ${index + 1}",
-                            style: TextStyle(
-                              color: const Color(0xFF1A237E),
-                              fontSize: 20.sp,
-                              fontWeight: FontWeight.w800,
+                      return GestureDetector(
+                        onTap: () {
+                          Navigator.of(context).push(MaterialPageRoute(builder: 
+                            (context) => CoasterDetailsScreen(coasterIndex: index)));
+                        },
+                        child: Container(
+                        width: double.infinity,
+                        margin: EdgeInsets.symmetric(vertical: 1.h),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(24),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.04),
+                              blurRadius: 10,
+                              offset: const Offset(0, 4),
                             ),
-                          ),
-                        ],
-                      ),
-                    );
+                          ],
+                          border: Border.all(color: Colors.black.withOpacity(0.05)),
+                        ),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.sensors_rounded,
+                              color: const Color(0xFF3F51B5),
+                              size: 32.sp,
+                            ),
+                            SizedBox(height: 1.h),
+                            Text(
+                              "Coaster ${index + 1}",
+                              style: TextStyle(
+                                color: const Color(0xFF1A237E),
+                                fontSize: 20.sp,
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ),
+                          ],
+                        ),
+                                            ),
+                      );
                       }
                     }
                   );

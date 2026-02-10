@@ -3,6 +3,8 @@ import 'dart:developer';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:magnathon/state/state_manager.dart';
+import 'package:provider/provider.dart';
 // import 'package:geoflutterfire_plus/geoflutterfire_plus.dart';
 // import 'package:random_string/random_string.dart';
 
@@ -72,6 +74,41 @@ class DatabaseMethods {
         for(var i in result.docs) {
           finalResult.add(i.data() as Map<String, dynamic>);
         }
+      }
+      return finalResult;
+    } catch(e) {
+      return finalResult;
+    }
+  }
+
+  Future startGame(int coasterID, String userID, String adminID) async {
+    try {
+      final userRef = FirebaseFirestore.instance.collection('users').doc(userID);
+      final adminRef = FirebaseFirestore.instance.collection('admin').doc(adminID);
+      await FirebaseFirestore.instance.collection('coaster').where("admin", isEqualTo: adminRef).where("number", isEqualTo: coasterID).get().then((value) {
+        if(value.docs.isNotEmpty) {
+          value.docs[0].reference.update({
+            "active" : true,
+            "currUser" : userRef,
+            "startTime" : FieldValue.serverTimestamp(),
+          });
+        }
+      });
+      return true;
+    } catch(e) {
+      return false;
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> getActiveCoasterDetails(String coasterId) async {
+    List<Map<String, dynamic>> finalResult = [];
+    try {
+      DocumentSnapshot result = await database.collection("coaster").doc(coasterId).get();
+      final userData = result['currUser'] as DocumentReference;
+      DocumentSnapshot<Object?> userResult = await userData.get();
+      if(result.exists) {
+        finalResult.add(result.data() as Map<String, dynamic>);
+        finalResult.add(userResult.data() as Map<String, dynamic>);
       }
       return finalResult;
     } catch(e) {

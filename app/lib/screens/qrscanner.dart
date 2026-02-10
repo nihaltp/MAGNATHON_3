@@ -1,8 +1,11 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:magnathon/database/admin_database.dart';
+import 'package:magnathon/state/state_manager.dart';
 import 'package:magnathon/widgets/scanner_overlay.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
+import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
 
 class QRScannerScreen extends StatefulWidget {
@@ -18,6 +21,11 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
   final TextEditingController _coasterIDNumberController = TextEditingController();
 
   Rect? scanWindowRect;
+
+  Future<void> gameStart(int coasterID, String userID, String adminID) async {
+    await DatabaseMethods().startGame(coasterID, userID, adminID);
+    if(mounted) Navigator.of(context).pop();
+  }
 
   void _qrDataFound(String data) {
     showModalBottomSheet(
@@ -43,6 +51,7 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
               SizedBox(height: 1.h,),
               TextButton(
                 onPressed: () {
+                  gameStart(int.parse(_coasterIDNumberController.text), data, Provider.of<StateManagement>(context, listen: false).docID);
                   Navigator.of(context).pop();
                 }, 
                 child: Text("Start", style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.w600),))
