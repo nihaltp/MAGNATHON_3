@@ -20,6 +20,19 @@ class _DashboardPageState extends State<DashboardPage> {
   final AuthService _authService = AuthService();
 
   @override
+  void initState() {
+    super.initState();
+    // Ensure leaderboard is loaded when dashboard opens
+    Future.microtask(() {
+      final leaderboardProvider = context.read<LeaderboardProvider>();
+      if (leaderboardProvider.leaderboard.isEmpty && !leaderboardProvider.isLoading) {
+        print('DashboardPage: Leaderboard empty, triggering load from database');
+        leaderboardProvider.loadLeaderboard();
+      }
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Consumer2<UserProvider, LeaderboardProvider>(
@@ -69,7 +82,7 @@ class _DashboardPageState extends State<DashboardPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Header with restaurant name
+                    // Header with restaurant name and refresh button
                     Container(
                       width: double.infinity,
                       padding: EdgeInsets.all(4.w),
@@ -78,24 +91,56 @@ class _DashboardPageState extends State<DashboardPage> {
                         borderRadius: BorderRadius.circular(3.w),
                         border: Border.all(color: AppColors.accentColor, width: 2),
                       ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(
-                            'Dashboard',
-                            style: TextStyle(
-                              fontSize: 5.w,
-                              fontWeight: FontWeight.bold,
-                              color: AppColors.accentColor,
-                            ),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Dashboard',
+                                style: TextStyle(
+                                  fontSize: 5.w,
+                                  fontWeight: FontWeight.bold,
+                                  color: AppColors.accentColor,
+                                ),
+                              ),
+                              SizedBox(height: 1.h),
+                              Text(
+                                widget.restaurantName,
+                                style: TextStyle(
+                                  fontSize: 4.5.w,
+                                  fontWeight: FontWeight.bold,
+                                  color: AppColors.white,
+                                ),
+                              ),
+                            ],
                           ),
-                          SizedBox(height: 1.h),
-                          Text(
-                            widget.restaurantName,
-                            style: TextStyle(
-                              fontSize: 4.5.w,
-                              fontWeight: FontWeight.bold,
-                              color: AppColors.white,
+                          // Refresh button
+                          GestureDetector(
+                            onTap: () async {
+                              final scaffold = ScaffoldMessenger.of(context);
+                              scaffold.showSnackBar(
+                                const SnackBar(content: Text('Refreshing leaderboard and user data...')),
+                              );
+                              // Trigger both refreshes
+                              await leaderboardProvider.refreshLeaderboard();
+                              await userProvider.refreshUser();
+                              scaffold.showSnackBar(
+                                const SnackBar(content: Text('Refresh complete')),
+                              );
+                            },
+                            child: Container(
+                              padding: EdgeInsets.all(2.w),
+                              decoration: BoxDecoration(
+                                color: AppColors.accentColor,
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(
+                                Icons.refresh,
+                                color: AppColors.primaryDark,
+                                size: 5.w,
+                              ),
                             ),
                           ),
                         ],
@@ -219,6 +264,30 @@ class _DashboardPageState extends State<DashboardPage> {
     }
 
     List<UserModel> leaderboard = leaderboardProvider.leaderboard;
+
+    // Handle empty leaderboard
+    if (leaderboard.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              'No leaderboard data available',
+              style: TextStyle(fontSize: 3.5.w, color: AppColors.white),
+            ),
+            SizedBox(height: 2.h),
+            ElevatedButton.icon(
+              onPressed: () {
+                print('DashboardPage: Manually refreshing leaderboard');
+                leaderboardProvider.refreshLeaderboard();
+              },
+              icon: const Icon(Icons.refresh),
+              label: const Text('Load Leaderboard'),
+            ),
+          ],
+        ),
+      );
+    }
 
     return ListView.builder(
       shrinkWrap: true,
