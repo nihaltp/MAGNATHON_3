@@ -71,6 +71,7 @@ void loop() {
       pause = false;
       timeNow = millis(); 
       Serial.println("Started");
+      delay(5000);
     }
     if (message == "pause") {
       pause = true;
