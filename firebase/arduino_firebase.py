@@ -115,10 +115,12 @@ while True:
                 print("No phone detected. Score paused.")
                 remainingPoints = coaster_ref.get().to_dict().get("remainingPoints") or 0
                 remainingPoints = remainingPoints + score_value
+                score = coaster_ref.get().to_dict().get("score") or 0
+                score = score + score_value
 
                 users_ref.update({
                     "remainingPoints": remainingPoints,
-                    "score": score_value,
+                    "score": score,
                     "highScore": max(users_ref.get().to_dict().get("highScore") or 0, score_value)
                 })
                 coaster_ref.update({
