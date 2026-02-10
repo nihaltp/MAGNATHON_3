@@ -10,7 +10,7 @@
 #define IR3 8
 #define IR4 10
 
-LedControl lc = LedControl(SEGMENT_DATA_PIN, SEGMENT_CLOCK_PIN, SEGMENT_LOAD_PIN);
+LedControl lc = LedControl(SEGMENT_DATA_PIN, SEGMENT_CLOCK_PIN, SEGMENT_LOAD_PIN, 1);
 
 // 8x8 font for digits 0–9
 byte digits[10][8] = {
