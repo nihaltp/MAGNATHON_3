@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:magnathon/screens/point_redeem.dart';
+import 'package:magnathon/screens/redeemQRScan.dart';
 import 'package:magnathon/state/state_manager.dart';
 import 'package:magnathon/widgets/admin_tile.dart';
 import 'package:provider/provider.dart';
@@ -107,6 +109,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                   ),
 
+                  AdminTile(
+                    title: "Redeem Points",
+                    subtitle: "Redeem user points for rewards",
+                    icon: Icons.celebration_outlined,
+                    iconColor: Colors.orange,
+                    onTap: () {
+                      Navigator.of(context).push(MaterialPageRoute(builder: (context) => RedeemQRScannerScreen()));
+                    },
+                  ),
                   SizedBox(height: 4.h),
                   Text("Account", style: TextStyle(fontSize: 21.sp, fontWeight: FontWeight.bold)),
                   SizedBox(height: 2.h),

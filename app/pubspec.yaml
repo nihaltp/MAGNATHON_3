@@ -43,6 +43,7 @@ dependencies:
   animated_leaderboard: ^0.1.4
   rive: ^0.13.20
   google_fonts: ^6.3.2
+  qr_flutter: ^4.1.0
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
