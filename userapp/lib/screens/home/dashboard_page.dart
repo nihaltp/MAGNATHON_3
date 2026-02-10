@@ -102,14 +102,8 @@ class _DashboardPageState extends State<DashboardPage> {
                       ),
                     ),
                     SizedBox(height: 3.h),
-                    // Leaderboard Rank
-                    _buildStatCard(
-                      title: 'Leaderboard Rank',
-                      value: '#${leaderboardProvider.getUserRank(user.uid)}',
-                      icon: Icons.leaderboard,
-                      color1: const Color(0xFFFFD740),
-                      color2: const Color(0xFFFBC02D),
-                    ),
+                    // Leaderboard Rank (supports fallback lookup)
+                    _buildRankCard(user, leaderboardProvider),
                     SizedBox(height: 2.5.h),
                     // Current Score
                     _buildStatCard(
@@ -295,5 +289,40 @@ class _DashboardPageState extends State<DashboardPage> {
         );
       },
     );
+  }
+
+  /// Builds the leaderboard rank card; uses cached leaderboard first
+  /// and falls back to a database lookup when necessary.
+  Widget _buildRankCard(UserModel user, LeaderboardProvider leaderboardProvider) {
+    return FutureBuilder<int>(
+      future: leaderboardProvider.fetchUserRank(user.uid),
+      builder: (context, snapshot) {
+        String display;
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          display = 'Loading...';
+        } else if (snapshot.hasError) {
+          display = 'N/A';
+        } else {
+          final rank = snapshot.data ?? -1;
+          display = _getRankDisplay(rank);
+        }
+
+        return _buildStatCard(
+          title: 'Leaderboard Rank',
+          value: display,
+          icon: Icons.leaderboard,
+          color1: const Color(0xFFFFD740),
+          color2: const Color(0xFFFBC02D),
+        );
+      },
+    );
+  }
+
+  /// Helper method to display rank with appropriate formatting
+  String _getRankDisplay(int rank) {
+    if (rank == -1) {
+      return 'Outside Top 100';
+    }
+    return '#$rank';
   }
 }
