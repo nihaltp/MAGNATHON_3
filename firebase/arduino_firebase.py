@@ -35,6 +35,28 @@ print("Listening to Arduino...")
 input_buffer = ""
 score_value = 0
 
+# 🔥 Firestore Listener (Flutter START trigger)
+def on_snapshot(doc_snapshot, changes, read_time):
+    global game_active, score_value
+
+    for doc in doc_snapshot:
+        data = doc.to_dict()
+
+        if data.get("active") == True and not game_active:
+            print("Game Started from Flutter!")
+            score_value = 0
+
+            # Reset score in Firestore
+            coaster_ref.update({
+                "currScore": 0,
+            })
+
+            ser.write(b"start\n")
+            game_active = True
+
+# Attach listener
+coaster_watch = coaster_ref.on_snapshot(on_snapshot)
+
 while True:
     try:
         if msvcrt.kbhit():
@@ -77,7 +99,7 @@ while True:
                     "score": score_value,
                     "timestamp": time.time()
                 })
-                db.collection("coaster").document("tZ00L2SuCpkHV4knZs6x").update({
+                db.collection("coaster").document(coaster_id).update({
                     "score": score_value
                 })
 
