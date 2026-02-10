@@ -12,16 +12,32 @@
 
 LedControl lc = LedControl(SEGMENT_DATA_PIN, SEGMENT_CLOCK_PIN, SEGMENT_LOAD_PIN);
 
+// 8x8 font for digits 0–9
+byte digits[10][8] = {
+  {0x3C,0x66,0x6E,0x76,0x66,0x66,0x3C,0x00}, // 0
+  {0x18,0x38,0x18,0x18,0x18,0x18,0x3C,0x00}, // 1
+  {0x3C,0x66,0x06,0x0C,0x30,0x60,0x7E,0x00}, // 2
+  {0x3C,0x66,0x06,0x1C,0x06,0x66,0x3C,0x00}, // 3
+  {0x0C,0x1C,0x3C,0x6C,0x7E,0x0C,0x0C,0x00}, // 4
+  {0x7E,0x60,0x7C,0x06,0x06,0x66,0x3C,0x00}, // 5
+  {0x1C,0x30,0x60,0x7C,0x66,0x66,0x3C,0x00}, // 6
+  {0x7E,0x66,0x06,0x0C,0x18,0x18,0x18,0x00}, // 7
+  {0x3C,0x66,0x66,0x3C,0x66,0x66,0x3C,0x00}, // 8
+  {0x3C,0x66,0x66,0x3E,0x06,0x0C,0x38,0x00}  // 9
+};
+
+char buf[12];
 int score = 0;
 unsigned long timeNow = 0;
 unsigned long scoreInterval = 1000;
 
+bool first = true;
 bool pause = false;
 bool failed = false;
 
 bool checkIR();
 void displaySetup();
-void showNumber(int number);
+void scrollNumber(const char* msg);
 
 void setup() {
   Serial.begin(9600);
@@ -32,7 +48,7 @@ void setup() {
   pinMode(IR4, INPUT);
 
   displaySetup();
-  showNumber(0);
+  scrollNumber(itoa(0, buf, 10));
   Serial.println("System Ready. Waiting for phone...");
 }
 
@@ -45,7 +61,7 @@ void loop() {
     if (message == "reset") {
       score = 0;
       failed = false;
-      showNumber(score);
+      scrollNumber(itoa(score, buf, 10));
       Serial.println("Reset to 0");
     }
     if (message == "start") {
@@ -66,6 +82,16 @@ void loop() {
 
   if (pause) return;
 
+  if (first) {
+    if (checkIR()) {
+      Serial.println("Phone detected on start, starting scoring.");
+      first = false;
+    } else {
+      Serial.println("No phone detected on start, waiting for reset.");
+      return;
+    }
+  }
+
   // --- 2. GAME LOGIC ---
   
   // If we haven't started counting yet, sync the timer
@@ -83,7 +109,7 @@ void loop() {
       } else {
         score++;
         Serial.println("Score: " + String(score));
-        showNumber(score);
+        scrollNumber(itoa(score, buf, 10));
       }
     } else {
       // Phone is GONE (Sensors are HIGH)
@@ -120,8 +146,32 @@ void displaySetup() {
   lc.clearDisplay(0);
 }
 
-void showNumber(int number) {
-  lc.setDigit(0, 0, number % 10, false);         
-  lc.setDigit(0, 1, (number / 10) % 10, false); 
-  lc.setDigit(0, 2, number / 100, false);        
+void scrollNumber(const char* msg) {
+  int length = strlen(msg);
+  int totalWidth = length * 8 + length; // digit width + spacing
+
+  for (int shift = 8; shift >= -totalWidth; shift--) {
+    lc.clearDisplay(0);
+
+    for (int row = 0; row < 8; row++) {
+      byte rowData = 0;
+
+      for (int i = 0; i < length; i++) {
+        int digit = msg[i] - '0';
+        int offset = shift + i * 7;
+
+        if (offset > -8 && offset < 8) {
+          byte d = digits[digit][row];
+          if (offset >= 0)
+            rowData |= d >> offset;
+          else
+            rowData |= d << (-offset);
+        }
+      }
+
+      lc.setRow(0, row, rowData);
+    }
+
+    delay(120);
+  }
 }

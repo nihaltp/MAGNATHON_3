@@ -3,13 +3,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:magnathon/firebase_options.dart';
 import 'package:magnathon/screens/home.dart';
+import 'package:magnathon/screens/login.dart';
 import 'package:magnathon/state/state_manager.dart';
 import 'package:provider/provider.dart';
+import 'package:rive/rive.dart';
 import 'package:sizer/sizer.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  await RiveFile.initialize();
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
   SystemChrome.setSystemUIOverlayStyle(
     SystemUiOverlayStyle(
@@ -50,7 +53,7 @@ class MyApp extends StatelessWidget {
               // tested with just a hot reload.
               colorScheme: ColorScheme.fromSeed(seedColor: Colors.white10, brightness: Brightness.light),
             ),
-            home: const HomeScreen(),
+            home: const LoginScreen(),
           );
         }
       ),
