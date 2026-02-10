@@ -1,7 +1,7 @@
 #include <Arduino.h>
 #include <LedControl.h>
 
-#define SEGMENT_LOAD_PIN 7
+#define SEGMENT_LOAD_PIN 3
 #define SEGMENT_CLOCK_PIN 13
 #define SEGMENT_DATA_PIN 11
 
@@ -88,6 +88,16 @@ void loop() {
       }
       Serial.println("Display test complete");
     }
+    if (message == "flash") {
+      // Simple flash test
+      Serial.println("Flash test: All ON");
+      for(int row=0; row<8; row++) {
+        lc.setRow(0, row, 0xFF);
+      }
+      delay(1000);
+      Serial.println("Flash test: All OFF");
+      lc.clearDisplay(0);
+    }
   }
 
   if (pause) return;
@@ -151,11 +161,14 @@ void displaySetup() {
   lc.clearDisplay(0);
   
   // Test pattern - all LEDs on briefly to verify hardware
+  Serial.println("Display init: TEST PATTERN");
   for(int row=0; row<8; row++) {
     lc.setRow(0, row, 0xFF);
   }
   delay(500);
   lc.clearDisplay(0);
+  delay(50);
+  Serial.println("Display init: COMPLETE");
 }
 
 void scrollNumber(const char* msg) {
