@@ -14,7 +14,7 @@ class CoasterDetailsScreen extends StatefulWidget {
 }
 
 class _CoasterDetailsScreenState extends State<CoasterDetailsScreen> {
-  // Mock data - In a real app, these would come from a Firebase Stream
+
   String currentUserName = "";
   String sessionStart = "";
   int currentScore = 0;
@@ -111,7 +111,6 @@ class _CoasterDetailsScreenState extends State<CoasterDetailsScreen> {
 
             SizedBox(height: 1.h),
 
-            // 3. Administrative Actions
             Text("Management", style: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.bold)),
             SizedBox(height: 2.h),
             
@@ -119,7 +118,7 @@ class _CoasterDetailsScreenState extends State<CoasterDetailsScreen> {
               children: [
                 Expanded(
                   child: _buildActionButton(
-                    label: "Nudge User",
+                    label: "Alert User",
                     icon: Icons.notifications_active,
                     color: Colors.orange,
                     onTap: () {},
