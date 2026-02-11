@@ -1,9 +1,4 @@
-build
-.vscode
+/build
+/.vscode
 .env
-firebase_key.json
-ir.cpp
-ir
-arduino
-arduino/arduino.ino
-firebase/firebase.json
+*/firebase_key.json
